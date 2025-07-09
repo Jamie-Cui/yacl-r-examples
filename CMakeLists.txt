@@ -44,7 +44,7 @@ set(CMAKE_DEPS_SRCDIR ${CMAKE_DEPS_PREFIX}/src)
 # Include subdirectories
 include(deps/yacl-r)
 include(deps/gtest)
-include(deps/fmt)
+include(deps/fmt) # FIXME: yacl-r requires fmt, this is unacceptable
 
 # This project setting
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
