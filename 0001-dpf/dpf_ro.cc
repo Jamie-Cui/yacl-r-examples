@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "0001-dpf/dpf_ro.h"
+
 #include "yacl/base/secparam.h"
-#include "yacl/crypto/experimental/dpf/dpf.h"
 #include "yacl/crypto/experimental/dpf/ge2n.h"
 
 namespace yacl::crypto {
