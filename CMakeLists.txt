@@ -30,6 +30,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 # cmake modules
 include(GNUInstallDirs)
 include(ExternalProject)
+include(ImportLib)
 
 # language standard
 set(CMAKE_CXX_STANDARD 17) # Enable C++17
@@ -44,6 +45,7 @@ set(CMAKE_DEPS_SRCDIR ${CMAKE_DEPS_PREFIX}/src)
 # Include subdirectories
 include(deps/yacl-r)
 include(deps/gtest)
+include(deps/benchmark)
 include(deps/fmt) # FIXME: yacl-r requires fmt, this is unacceptable
 
 # This project setting

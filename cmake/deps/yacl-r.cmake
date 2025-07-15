@@ -15,10 +15,10 @@
 ExternalProject_Add(
   yacl-r
   GIT_REPOSITORY https://github.com/Jamie-Cui/yacl-r.git
-  GIT_TAG jamie/dev
+  GIT_TAG main
   PREFIX ${CMAKE_DEPS_PREFIX}
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_DEPS_PREFIX} -DBUILD_TEST=Off
-  # UPDATE_COMMAND "" # HACK no update
+  UPDATE_COMMAND "" # HACK no update
   EXCLUDE_FROM_ALL true
   DOWNLOAD_EXTRACT_TIMESTAMP On
   LOG_DOWNLOAD On
@@ -26,11 +26,7 @@ ExternalProject_Add(
   LOG_BUILD On
   LOG_INSTALL On)
 
-add_library(libyacl SHARED IMPORTED)
-set_target_properties(
-  libyacl PROPERTIES IMPORTED_LOCATION
-                     ${CMAKE_DEPS_LIBDIR}/libyacl${CMAKE_SHARED_LIBRARY_SUFFIX})
-add_dependencies(libyacl yacl-r)
+import_shared_lib_from(libyacl yacl)
 
 target_include_directories(
   libyacl INTERFACE ${CMAKE_DEPS_INCLUDEDIR}

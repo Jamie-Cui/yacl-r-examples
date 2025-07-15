@@ -12,16 +12,20 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-add_library(dpf STATIC ${CMAKE_CURRENT_LIST_DIR}/dpf_ro.cc
-                       ${CMAKE_CURRENT_LIST_DIR}/dpf_ro.h)
+add_library(dpf STATIC ${CMAKE_CURRENT_LIST_DIR}/dpf.cc
+                       ${CMAKE_CURRENT_LIST_DIR}/dpf.h)
 
 target_include_directories(dpf PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 target_link_libraries(dpf PUBLIC Deps::yacl Deps::fmt)
 
-macro(add_dpf_test NAME)
-  add_executable(${NAME} ${NAME}.cc)
-  target_link_libraries(${NAME} PRIVATE dpf Deps::gtest)
-  add_test(NAME ${NAME} COMMAND ${NAME})
-endmacro()
+# dpf test
 
-add_dpf_test(dpf_ro_test)
+add_executable(dpf_test ${CMAKE_CURRENT_LIST_DIR}/dpf_test.cc)
+target_link_libraries(dpf_test PRIVATE dpf Deps::gtest)
+add_test(NAME dpf_test COMMAND dpf_test)
+
+# dpf benchmark
+
+add_executable(dpf_bench ${CMAKE_CURRENT_LIST_DIR}/dpf_bench.cc)
+target_link_libraries(dpf_bench PRIVATE dpf Deps::yacl Deps::benchmark)
+add_test(NAME dpf_bench COMMAND dpf_bench)
