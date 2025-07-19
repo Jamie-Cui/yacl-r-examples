@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "0001-dpf/dpf.h"
+#include "0001-dpf/dpf_ro.h"
 
 #include "gtest/gtest.h"
-
-#include "yacl/base/int128.h"
-#include "yacl/crypto/experimental/dpf/ge2n.h"
-#include "yacl/crypto/rand/rand.h"
 
 namespace yacl::crypto::examples {
 
 TEST(DpfTest, Gen) {
-  DpfKey k0;
-  DpfKey k1;
+  DpfRoKey k0;
+  DpfRoKey k1;
   uint128_t first_mk = SecureRandSeed();
   uint128_t second_mk = SecureRandSeed();
 
@@ -34,12 +30,12 @@ TEST(DpfTest, Gen) {
   auto alpha = GE2n<k_in_bitnum>(FastRandU64());
   auto beta = GE2n<k_out_bitnum>(FastRandU64());
 
-  DpfKeyGen(&k0, &k1, alpha, beta, first_mk, second_mk, false);
+  DpfRoKeyGen(&k0, &k1, alpha, beta, first_mk, second_mk, false);
 }
 
 TEST(DpfTest, Eval) {
-  DpfKey k0;
-  DpfKey k1;
+  DpfRoKey k0;
+  DpfRoKey k1;
   uint128_t first_mk = SecureRandSeed();
   uint128_t second_mk = SecureRandSeed();
 
@@ -49,7 +45,7 @@ TEST(DpfTest, Eval) {
   auto alpha = GE2n<k_in_bitnum>(FastRandU64());
   auto beta = GE2n<k_out_bitnum>(FastRandU64());
 
-  DpfKeyGen(&k0, &k1, alpha, beta, first_mk, second_mk, false);
+  DpfRoKeyGen(&k0, &k1, alpha, beta, first_mk, second_mk, false);
 
   /* wrong input */
   {
@@ -59,8 +55,8 @@ TEST(DpfTest, Eval) {
     }
     auto out1 = GE2n<k_out_bitnum>(0);
     auto out2 = GE2n<k_out_bitnum>(0);
-    DpfEval(k0, in, &out1);
-    DpfEval(k1, in, &out2);
+    DpfRoEval(k0, in, &out1);
+    DpfRoEval(k1, in, &out2);
     EXPECT_EQ((out1 + out2).GetVal(), 0);
   }
 
@@ -68,15 +64,15 @@ TEST(DpfTest, Eval) {
   {
     auto out1 = GE2n<k_out_bitnum>(0);
     auto out2 = GE2n<k_out_bitnum>(0);
-    DpfEval(k0, alpha, &out1);
-    DpfEval(k1, alpha, &out2);
+    DpfRoEval(k0, alpha, &out1);
+    DpfRoEval(k1, alpha, &out2);
     EXPECT_EQ(out1 + out2, beta);
   }
 }
 
 TEST(DpfTest, EvalAll) {
-  DpfKey k0;
-  DpfKey k1;
+  DpfRoKey k0;
+  DpfRoKey k1;
   uint128_t first_mk = SecureRandSeed();
   uint128_t second_mk = SecureRandSeed();
 
@@ -86,13 +82,13 @@ TEST(DpfTest, EvalAll) {
   auto alpha = GE2n<k_in_bitnum>(FastRandU64());
   auto beta = GE2n<k_out_bitnum>(FastRandU64());
 
-  DpfKeyGen(&k0, &k1, alpha, beta, first_mk, second_mk, true);
+  DpfRoKeyGen(&k0, &k1, alpha, beta, first_mk, second_mk, true);
 
   size_t range = 1 << k_in_bitnum;
   auto out1 = std::vector<GE2n<k_out_bitnum>>(range);
   auto out2 = std::vector<GE2n<k_out_bitnum>>(range);
-  DpfEvalAll<k_in_bitnum, k_out_bitnum>(&k0, absl::MakeSpan(out1));
-  DpfEvalAll<k_in_bitnum, k_out_bitnum>(&k1, absl::MakeSpan(out2));
+  DpfRoEvalAll<k_in_bitnum, k_out_bitnum>(&k0, absl::MakeSpan(out1));
+  DpfRoEvalAll<k_in_bitnum, k_out_bitnum>(&k1, absl::MakeSpan(out2));
 
   for (size_t i = 0; i < range; i++) {
     auto result = out1[i] + out2[i];

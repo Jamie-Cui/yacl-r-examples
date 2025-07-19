@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "0001-dpf/dpf_ro.h"
+#include "0001-dpf/dpf.h"
 
 #include "yacl/base/secparam.h"
 #include "yacl/crypto/experimental/dpf/ge2n.h"
@@ -56,7 +56,7 @@ size_t GetTerminateLevel(bool enable_evalall, size_t m, size_t n) {
 }
 
 template <size_t /* input bit num */ M, size_t /* output bit num */ N>
-void Traverse(DpfRoKey* key, absl::Span<GE2n<N>> result, size_t current_level,
+void Traverse(DpfKey* key, absl::Span<GE2n<N>> result, size_t current_level,
               uint64_t current_pos, uint128_t seed_working, bool t_working,
               size_t term_level) {
   if (current_level < term_level) {
@@ -104,9 +104,9 @@ void Traverse(DpfRoKey* key, absl::Span<GE2n<N>> result, size_t current_level,
 // -----------------------------------------
 
 template <size_t /* input bit num */ M, size_t /* output bit num */ N>
-void DpfRoKeyGen(DpfRoKey* first_key, DpfRoKey* second_key,
-                 const GE2n<M>& alpha, const GE2n<N>& beta, uint128_t first_mk,
-                 uint128_t second_mk, bool enable_evalall) {
+void DpfKeyGen(DpfKey* first_key, DpfKey* second_key, const GE2n<M>& alpha,
+               const GE2n<N>& beta, uint128_t first_mk, uint128_t second_mk,
+               bool enable_evalall) {
   static_assert(M > 0 && M <= 64);   // input bits number constrains
   static_assert(N > 0 && N <= 128);  // output bits number constrains
 
@@ -114,8 +114,8 @@ void DpfRoKeyGen(DpfRoKey* first_key, DpfRoKey* second_key,
   uint32_t term_level = GetTerminateLevel(enable_evalall, M, N);
 
   // set up the return keys
-  *first_key = DpfRoKey(false, first_mk);
-  *second_key = DpfRoKey(true, second_mk);
+  *first_key = DpfKey(false, first_mk);
+  *second_key = DpfKey(true, second_mk);
   first_key->cws_vec.resize(term_level);
   second_key->cws_vec.resize(term_level);
 
@@ -220,7 +220,7 @@ void DpfRoKeyGen(DpfRoKey* first_key, DpfRoKey* second_key,
 }
 
 template <size_t /* input bit num */ M, size_t /* output bit num */ N>
-void DpfRoEval(const DpfRoKey& key, const GE2n<M>& in, GE2n<N>* out) {
+void DpfEval(const DpfKey& key, const GE2n<M>& in, GE2n<N>* out) {
   YACL_ENFORCE(key.enable_evalall == false);
 
   uint128_t seed_working = key.GetSeed();  // the initial value
@@ -263,7 +263,7 @@ void DpfRoEval(const DpfRoKey& key, const GE2n<M>& in, GE2n<N>* out) {
 }
 
 template <size_t /* input bit num */ M, size_t /* output bit num */ N>
-void DpfRoEvalAll(DpfRoKey* key, absl::Span<GE2n<N>> out) {
+void DpfEvalAll(DpfKey* key, absl::Span<GE2n<N>> out) {
   YACL_ENFORCE(key->enable_evalall == true);
 
   uint128_t seed_working = key->GetSeed();  // the initial value
@@ -281,16 +281,16 @@ void DpfRoEvalAll(DpfRoKey* key, absl::Span<GE2n<N>> out) {
 }
 
 // template specialization for different M and N
-#define DPF_T_SPECIFY_FUNC(M, N)                                               \
-  template void DpfRoKeyGen<M, N>(DpfRoKey * first_key, DpfRoKey * second_key, \
-                                  const GE2n<M>& alpha, const GE2n<N>& beta,   \
-                                  uint128_t first_mk, uint128_t second_mk,     \
-                                  bool enable_evalall = false);                \
-                                                                               \
-  template void DpfRoEval<M, N>(const DpfRoKey& key, const GE2n<M>& in,        \
-                                GE2n<N>* out);                                 \
-                                                                               \
-  template void DpfRoEvalAll<M, N>(DpfRoKey * key, absl::Span<GE2n<(N)>> out);
+#define DPF_T_SPECIFY_FUNC(M, N)                                           \
+  template void DpfKeyGen<M, N>(DpfKey * first_key, DpfKey * second_key,   \
+                                const GE2n<M>& alpha, const GE2n<N>& beta, \
+                                uint128_t first_mk, uint128_t second_mk,   \
+                                bool enable_evalall = false);              \
+                                                                           \
+  template void DpfEval<M, N>(const DpfKey& key, const GE2n<M>& in,        \
+                              GE2n<N>* out);                               \
+                                                                           \
+  template void DpfEvalAll<M, N>(DpfKey * key, absl::Span<GE2n<(N)>> out);
 
 DPF_T_SPECIFY_FUNC(64, 64)
 DPF_T_SPECIFY_FUNC(32, 64)
@@ -308,6 +308,12 @@ DPF_T_SPECIFY_FUNC(4, 128)
 DPF_T_SPECIFY_FUNC(2, 128)
 DPF_T_SPECIFY_FUNC(1, 128)
 
-#undef DPF_T_SPECIFY_FUNC
+// HACK for ssa benchmark
+DPF_T_SPECIFY_FUNC(10, 64)
+DPF_T_SPECIFY_FUNC(15, 64)
+DPF_T_SPECIFY_FUNC(20, 64)
+DPF_T_SPECIFY_FUNC(24, 64)
+DPF_T_SPECIFY_FUNC(27, 64)
 
+#undef DPF_T_SPECIFY_FUNC
 }  // namespace yacl::crypto::examples

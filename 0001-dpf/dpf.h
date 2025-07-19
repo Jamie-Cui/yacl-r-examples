@@ -28,7 +28,7 @@ namespace yacl::crypto::examples {
 //
 // For more details, please see: https://eprint.iacr.org/2018/707
 //
-class DpfRoKey {
+class DpfKey {
  public:
   // internal type definition
   class CW {
@@ -64,9 +64,9 @@ class DpfRoKey {
   std::vector<uint128_t> last_cw_vec;  // the final correlation word
 
   // empty constructor
-  DpfRoKey() = default;
+  DpfKey() = default;
 
-  explicit DpfRoKey(bool rank, const uint128_t mseed = SecureRandSeed())
+  explicit DpfKey(bool rank, const uint128_t mseed = SecureRandSeed())
       : rank_(rank), mseed_(mseed) {}
 
   void EnableEvalAll() { enable_evalall = true; }
@@ -104,14 +104,14 @@ class DpfRoKey {
 // };
 
 template <size_t /* input bit num */ M, size_t /* output bit num */ N>
-void DpfRoKeyGen(DpfRoKey* first_key, DpfRoKey* second_key,
-                 const GE2n<M>& alpha, const GE2n<N>& beta, uint128_t first_mk,
-                 uint128_t second_mk, bool enable_evalall = false);
+void DpfKeyGen(DpfKey* first_key, DpfKey* second_key, const GE2n<M>& alpha,
+               const GE2n<N>& beta, uint128_t first_mk, uint128_t second_mk,
+               bool enable_evalall = false);
 
 template <size_t /* input bit num */ M, size_t /* output bit num */ N>
-void DpfRoEval(const DpfRoKey& key, const GE2n<M>& in, GE2n<N>* out);
+void DpfEval(const DpfKey& key, const GE2n<M>& in, GE2n<N>* out);
 
 template <size_t /* input bit num */ M, size_t /* output bit num */ N>
-void DpfRoEvalAll(DpfRoKey* key, absl::Span<GE2n<N>> out);
+void DpfEvalAll(DpfKey* key, absl::Span<GE2n<N>> out);
 
 }  // namespace yacl::crypto::examples

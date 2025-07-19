@@ -42,10 +42,13 @@ set(CMAKE_DEPS_BINDIR ${CMAKE_DEPS_PREFIX}/${CMAKE_INSTALL_BINDIR})
 set(CMAKE_DEPS_INCLUDEDIR ${CMAKE_DEPS_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
 set(CMAKE_DEPS_SRCDIR ${CMAKE_DEPS_PREFIX}/src)
 
+set(CMAKE_CTEST_ARGUMENTS "--output-on-failure")
+
 # Include subdirectories
 include(deps/yacl-r)
 include(deps/gtest)
 include(deps/benchmark)
+include(deps/absl)
 include(deps/fmt) # FIXME: yacl-r requires fmt, this is unacceptable
 
 # This project setting
